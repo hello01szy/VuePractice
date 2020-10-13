@@ -51,8 +51,7 @@ export default {
           checked:[
             {validator: checkAgree, trigger:'blur'}  
           ]
-        },
-        bgs:['bg1.jpg', 'bg2.jpg', 'bg3.jpg']
+        }
       }
     },
     methods: {
@@ -72,11 +71,6 @@ export default {
             return false;
           }
         });
-      }
-    },
-    computed:{
-      randomBg:function(){
-        return this.bg = parseInt(Math.random() * 3 + 1);
       }
     }
 }

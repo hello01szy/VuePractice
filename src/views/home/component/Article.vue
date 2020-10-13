@@ -1,11 +1,15 @@
 <template>
   <div class="article">
     <el-card class="box-card">
+      <div slot="header" class="clearfix">
+      <span>
         <el-breadcrumb separator="/">
-        <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-        <el-breadcrumb-item :to="{ path: '/home/article' }">文章管理</el-breadcrumb-item>
-      </el-breadcrumb>
-      <el-form ref="form" :model="form" label-width="80px" class="myform">
+          <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
+          <el-breadcrumb-item :to="{ path: '/home/article' }">文章管理</el-breadcrumb-item>
+        </el-breadcrumb>
+      </span>
+    </div>
+      <el-form ref="form" :model="form" label-width="80px" class="myform" size="small">
         <el-form-item label="状态">
           <el-radio-group v-model="form.resource">
             <el-radio label="全部"></el-radio>
@@ -38,21 +42,80 @@
           <el-button type="primary" @click="onSubmit">筛选</el-button>
         </el-form-item>
       </el-form>
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage4"
-        :page-sizes="[100, 200, 300, 400]"
-        :page-size="100"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="400">
-    </el-pagination>
-
+    </el-card>
+    <el-card class="resultCard">
+      <div slot="header" class="clearfix">
+        <span>共查找到{{dataSize}}条数据</span>
+      </div>
+      <div>
+        <el-table
+          :data="tableData"
+          style="width: 100%"
+          size="medium">
+          <el-table-column
+            label="封面"
+            width="180">
+            <template slot-scope="scope">
+              <img v-if="scope.row.cover.images[0]" :src="scope.row.cover.images[0]" class="cover"/>
+              <img v-else src="~@/assets/none.jpg" class="cover"/>
+            </template>
+            <img src="">
+          </el-table-column>
+          <el-table-column
+            prop="title"
+            label="标题"
+            width="180">
+          </el-table-column>
+          <el-table-column
+            label="状态"
+            width="180">
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.status === 0" type="info">
+                草稿
+              </el-tag>
+              <el-tag v-else-if="scope.row.status === 1" type="info">
+                待审核
+              </el-tag>
+              <el-tag v-else-if="scope.row.status === 2" type="success">
+                审核通过
+              </el-tag>
+              <el-tag v-else-if="scope.row.status === 3" type="warning">
+                审核失败
+              </el-tag>
+              <el-tag v-else-if="scope.row.status === 4" type="warning">
+                删除
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="pubdate"
+            label="发布时间">
+          </el-table-column>
+          <el-table-column
+            prop="operate"
+            label="操作">
+            <el-button type="primary" icon="el-icon-edit" circle></el-button>
+            <el-button type="danger" icon="el-icon-delete" circle></el-button>
+          </el-table-column>
+        </el-table>
+      </div>
+      <div class="page">
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage4"
+          :page-sizes="[10, 20, 40, 80, 100]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total">
+        </el-pagination>
+      </div>
     </el-card>
   </div>
 </template>
 
 <script>
+import { getArticles } from '@/api/article'
 export default {
   name:'myarticle',
   data() {
@@ -67,8 +130,12 @@ export default {
         resource: '',
         desc: ''
       },
-      currentPage4:4,
-      value1:''
+      currentPage4:1,
+      value1:'',
+      tableData: [],
+      dataSize:Number,
+      total:Number,
+      pageSize:10
     }
   },
   methods:{
@@ -76,11 +143,36 @@ export default {
       this.$message.success("创建成功")
     },
     handleSizeChange(val) {
-        console.log(`每页 ${val} 条`);
+      this.pageSize = val;
+      getArticles({
+        'page':this.currentPage4,
+        'per_page':this.pageSize
+      }).then(res=>{
+        this.tableData = res.data.data.results;
+      })
+      console.log(`每页 ${val} 条`);
     },
     handleCurrentChange(val) {
+      this.currentPage4 = val;
+      getArticles({
+        'page':this.currentPage4,
+        'per_page':this.pageSize
+      }).then(res=>{
+        this.tableData = res.data.data.results;
+      })
       console.log(`当前页: ${val}`);
+    },
+    articles(){
+      getArticles({}).then(res=>{
+        this.dataSize = res.data.data.total_count;
+        this.total = parseInt(this.dataSize);
+        this.tableData = res.data.data.results;
+        console.log(res.data.data)
+      })
     }
+  },
+  created(){
+    this.articles();
   }
 }
 </script>
@@ -88,13 +180,28 @@ export default {
 <style>
 .article{
   display: flex;
+  flex-direction: column;
   justify-content: center;
 }
 .box-card{
-  width: 100%;
+  width: 96%;
   padding: 10px 20px;
 }
 .myform{
   margin-top: 20px;
+}
+.resultCard{
+  margin-top: 10px;
+}
+.cover{
+  width: 160px;
+  height: 100px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.page{
+  display: flex;
+  justify-content: center;
 }
 </style>
