@@ -9,24 +9,20 @@
         </el-breadcrumb>
       </span>
     </div>
-      <el-form ref="form" :model="form" label-width="80px" class="myform" size="small">
+      <el-form ref="form" :model="form" label-width="80px" class="myform">
         <el-form-item label="状态">
-          <el-radio-group v-model="form.resource">
-            <el-radio label="全部"></el-radio>
-            <el-radio label="草稿"></el-radio>
-            <el-radio label="待审核"></el-radio>
-            <el-radio label="已审核"></el-radio>
-            <el-radio label="审核失败"></el-radio>
-            <el-radio label="已删除"></el-radio>
+          <el-radio-group v-model="status">
+            <el-radio :label="null">全部</el-radio>
+            <el-radio :label="1">草稿</el-radio>
+            <el-radio :label="2">待审核</el-radio>
+            <el-radio :label="3">已审核</el-radio>
+            <el-radio :label="4">审核失败</el-radio>
+            <el-radio :label="5">已删除</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="频道">
-          <el-select v-model="form.region" placeholder="请选择频道">
-            <el-option label="Java" value="java"></el-option>
-            <el-option label="Python" value="python"></el-option>
-            <el-option label="C++" value="c++"></el-option>
-            <el-option label="Android" value="android"></el-option>
-            <el-option label="树莓派" value="cherry"></el-option>
+          <el-select v-model="channelId" placeholder="请选择频道">
+            <el-option v-for="(value, index) in channels" :key="index" :label="value.name" :value="value.id"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="活动时间">
@@ -44,8 +40,8 @@
       </el-form>
     </el-card>
     <el-card class="resultCard">
-      <div slot="header" class="clearfix">
-        <span>共查找到{{dataSize}}条数据</span>
+      <div slot="header" class="clearfix" v-cloak>
+        <span>共查找到{{total}}条数据</span>
       </div>
       <div>
         <el-table
@@ -94,8 +90,10 @@
           <el-table-column
             prop="operate"
             label="操作">
-            <el-button type="primary" icon="el-icon-edit" circle></el-button>
-            <el-button type="danger" icon="el-icon-delete" circle></el-button>
+            <template slot-scope="scope">
+              <el-button type="primary" icon="el-icon-edit" circle @click="onEdit()"></el-button>
+              <el-button type="danger" icon="el-icon-delete" circle @click="onDelete(scope.row.id)"></el-button>
+            </template>
           </el-table-column>
         </el-table>
       </div>
@@ -111,11 +109,12 @@
         </el-pagination>
       </div>
     </el-card>
+    
   </div>
 </template>
 
 <script>
-import { getArticles } from '@/api/article'
+import { getArticleChannel, deleteArticles, getArticles } from '@/api/article'
 export default {
   name:'myarticle',
   data() {
@@ -134,45 +133,65 @@ export default {
       value1:'',
       tableData: [],
       dataSize:Number,
-      total:Number,
-      pageSize:10
+      total:0,
+      pageSize:10,
+      status:null,
+      channels:[],
+      channelId:null,
     }
   },
   methods:{
     onSubmit(){
-      this.$message.success("创建成功")
+      console.log(this.channelId)
+      this.currentPage4 = 1
+      this.articles();
     },
     handleSizeChange(val) {
       this.pageSize = val;
-      getArticles({
-        'page':this.currentPage4,
-        'per_page':this.pageSize
-      }).then(res=>{
-        this.tableData = res.data.data.results;
-      })
+      this.articles(val);
       console.log(`每页 ${val} 条`);
     },
     handleCurrentChange(val) {
       this.currentPage4 = val;
-      getArticles({
-        'page':this.currentPage4,
-        'per_page':this.pageSize
-      }).then(res=>{
-        this.tableData = res.data.data.results;
-      })
+      this.articles()
       console.log(`当前页: ${val}`);
     },
     articles(){
-      getArticles({}).then(res=>{
+      getArticles({
+        'page':this.currentPage4,
+        'per_page':this.pageSize,
+        'status':this.status,
+        'channel_id':this.channelId
+      }).then(res=>{
         this.dataSize = res.data.data.total_count;
         this.total = parseInt(this.dataSize);
         this.tableData = res.data.data.results;
         console.log(res.data.data)
       })
+    },
+    onDelete(articleId){
+      this.$alert('确定删除吗？', '提示', {
+          confirmButtonText: '确定',
+          callback: action => {
+            if(action === 'confirm'){
+              deleteArticles(articleId.toString()).then(res=>{
+              this.$message.success('删除成功');
+              }).catch(res => {
+                this.$message.info('删除失败');
+              })
+            }
+          }
+        });
+    },
+    onEdit(){
+      this.$router.push('/home/publish');
     }
   },
   created(){
     this.articles();
+    getArticleChannel().then(res=>{
+      this.channels = res.data.data.channels;
+    })
   }
 }
 </script>

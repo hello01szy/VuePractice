@@ -6,12 +6,12 @@
         text-color="#fff"
         active-text-color="#9cdcf0"
         router
-        :collapse="flag">
+        :collapse.sync='flag'>
         <el-menu-item index="/home/">
             <i class="el-icon-location"></i>
             <span>首页</span>
         </el-menu-item>
-        <el-menu-item index="/home/content">
+        <el-menu-item index="/home/article">
             <i class="el-icon-menu"></i>
             <span slot="title">内容管理</span>
         </el-menu-item>
@@ -19,7 +19,7 @@
             <i class="el-icon-document"></i>
             <span slot="title">素材管理</span>
         </el-menu-item>
-        <el-menu-item index="/home/article">
+        <el-menu-item index="/home/publish">
             <i class="el-icon-share"></i>
             <span slot="title">发布文章</span>
         </el-menu-item>
@@ -41,9 +41,9 @@
 <script>
 export default {
     name:'AsideMenu',
-    props:{'flag':{
-        default:false
-    }},
+    props:{
+        flag:false
+    },
     methods:{
     }
 }

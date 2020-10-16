@@ -62,6 +62,7 @@ export default {
     }
     .container-aside{
         background-color: #515c64;
+        transition: 0.8ms;
     }
     .menu-logo{
         height: 80px;

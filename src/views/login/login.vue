@@ -61,8 +61,10 @@ export default {
             this.loading = true
             login('/mp/v1_0/authorizations', this.user).then((data) =>{
                 this.loading = false
-                window.localStorage.setItem('data', JSON.stringify(data.data.data));
-                this.$router.push('/home');
+                if(JSON.stringify(data.data.data) !== undefined){
+                  window.localStorage.setItem('data', JSON.stringify(data.data.data));
+                  this.$router.push('/home');
+                }
             }).catch((error) =>{
                 this.loading = false
                 this.$message.error('用户名或密码错误');
