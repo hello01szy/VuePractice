@@ -1,7 +1,7 @@
 <template>
-    <div>
+    <div class="menu">
       <el-menu
-        default-active="1"
+        default-active="/home/"
         background-color="#545c64"
         text-color="#fff"
         active-text-color="#9cdcf0"
@@ -41,6 +41,11 @@
 <script>
 export default {
     name:'AsideMenu',
+    data(){
+        return{
+
+        }
+    },
     props:{
         flag:false
     },
@@ -48,3 +53,8 @@ export default {
     }
 }
 </script>
+<style lang="css">
+.menu .el-menu{
+    border-right: none;
+}
+</style>

@@ -25,11 +25,11 @@
 							<el-radio label="-1">自动</el-radio>
 						</el-radio-group>
 					</el-form-item>
-					<el-form-item label="内容">
-						<el-input type="textarea" v-model="form.content"></el-input>
+					<el-form-item label="内容" class="editor" prop="content">
+						<quill-editor ref="text" v-model="form.content" class="myQuillEditor" :options="editorOption" />
 					</el-form-item>
 					<el-form-item>
-						<el-button type="primary" @click="onPublish('publish-form')">立即创建</el-button>
+						<el-button type="primary" @click="onPublish('publish-form')">提交</el-button>
 						<el-button @click="saveDraft('publish-form')">存为草稿</el-button>
 					</el-form-item>
 				</el-form>
@@ -39,7 +39,11 @@
 </template>
 
 <script>
-import { getArticleChannel, publishArticle } from '@/api/article'
+import { getArticleChannel, publishArticle, queryArticles, updateArticle } from '@/api/article'
+import { quillEditor } from 'vue-quill-editor'
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
 export default {
 	name:'ArticlePublish',
 	data() {
@@ -53,25 +57,60 @@ export default {
 					},
 					content: ''
 				},
+				editorOption:{
+					modules:{
+						toolbar:[
+							['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+							['blockquote', 'code-block'],
+							[{ 'list': 'ordered'}, { 'list': 'bullet' }],
+							[{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+							[{ 'direction': 'rtl' }],                         // text direction
+
+							[{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+							[{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+
+							[{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+							[{ 'font': [] }],
+							[{ 'align': [] }],
+							['link', 'image']
+						]
+					},
+					placeholder:'请输入...'
+				},
 				channels:[],
 				pic:'',
 				rules:{
-						title: [
+					title: [
 						{ required: true, message: '请输入标题', trigger: 'blur' },
 						{ min: 4, max: 20, message: '长度在 4 到 20 个字符', trigger: 'blur' }
 					],
+					content:[
+						{ required: true, message: '请输入内容', trigger: 'blur' }
+					]
 				}
 			}
 	},
+	components: {
+    quillEditor
+  },
 	methods:{
 		onPublish(formname){
 			this.$refs[formname].validate((valid) => {
 				if(valid){
-					publishArticle(this.form).then(res=>{
-						this.$message.success('发布成功');
-					}).catch(res=>{
-						this.$message.info('发布失败');
-					})
+					if(this.$route.query.id){
+						updateArticle(this.$route.query.id, this.form).then(res=>{
+							this.$message.success('修改成功');
+						}).catch(e=>{
+							this.$message.info(e)
+						})
+					}
+					else{
+						publishArticle(this.form).then(res=>{
+							this.$message.success('发布成功');
+						}).catch(res=>{
+							this.$message.info('发布失败');
+						})
+					}
 				}else{
 					return false;
 				}
@@ -88,6 +127,11 @@ export default {
 	},
 	created(){
 		this.loadChannels();
+		if(this.$route.query.id){
+			queryArticles(this.$route.query.id).then(res=>{
+				this.form = res.data.data;
+			});
+		}
 	}
 }
 </script>
@@ -111,4 +155,13 @@ export default {
   .box-card {
     width: 100%;
   }
+	.editor{
+		height: 400px;
+	}
+	.myQuillEditor{
+		height: 400px;
+	}
+	.myQuillEditor .ql-container{
+		height: 350px;
+	}
 </style>

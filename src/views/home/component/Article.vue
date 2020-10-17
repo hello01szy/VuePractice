@@ -2,13 +2,13 @@
   <div class="article">
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-      <span>
-        <el-breadcrumb separator="/">
-          <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item :to="{ path: '/home/article' }">文章管理</el-breadcrumb-item>
-        </el-breadcrumb>
-      </span>
-    </div>
+        <span>
+          <el-breadcrumb separator="/">
+            <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item :to="{ path: '/home/article' }">文章管理</el-breadcrumb-item>
+          </el-breadcrumb>
+        </span>
+      </div>
       <el-form ref="form" :model="form" label-width="80px" class="myform">
         <el-form-item label="状态">
           <el-radio-group v-model="status">
@@ -91,7 +91,7 @@
             prop="operate"
             label="操作">
             <template slot-scope="scope">
-              <el-button type="primary" icon="el-icon-edit" circle @click="onEdit()"></el-button>
+              <el-button type="primary" icon="el-icon-edit" circle @click="onEdit(scope.row.id)"></el-button>
               <el-button type="danger" icon="el-icon-delete" circle @click="onDelete(scope.row.id)"></el-button>
             </template>
           </el-table-column>
@@ -170,6 +170,7 @@ export default {
       })
     },
     onDelete(articleId){
+      console.log(articleId.toString());
       this.$alert('确定删除吗？', '提示', {
           confirmButtonText: '确定',
           callback: action => {
@@ -177,14 +178,14 @@ export default {
               deleteArticles(articleId.toString()).then(res=>{
               this.$message.success('删除成功');
               }).catch(res => {
-                this.$message.info('删除失败');
+                this.$message.info(res.toString());
               })
             }
           }
         });
     },
-    onEdit(){
-      this.$router.push('/home/publish');
+    onEdit(articleId){
+      this.$router.push('/home/publish?id=' + articleId.toString());
     }
   },
   created(){
@@ -203,14 +204,14 @@ export default {
   justify-content: center;
 }
 .box-card{
-  width: 96%;
-  padding: 10px 20px;
+  width: 100%;
 }
 .myform{
   margin-top: 20px;
 }
 .resultCard{
   margin-top: 10px;
+  width: 100%;
 }
 .cover{
   width: 160px;
