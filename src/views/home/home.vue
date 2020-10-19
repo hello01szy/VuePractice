@@ -3,7 +3,7 @@
         <el-container class="el-container">
             <el-aside :width="width" class="container-aside">
                 <div class="menu-logo"></div>
-                <AsideMenu :flag="flag"></AsideMenu>
+                <AsideMenu :flag="flag" :activeIndex="activeIndex"></AsideMenu>
             </el-aside>
             <el-container>
                 <el-header class="container-head">
@@ -27,8 +27,9 @@ export default {
     },
     data(){
         return {
-            flag:Boolean,
-            width:'',
+            flag:false,
+            width:'200px',
+            activeIndex:'/home'
         }
     },
     methods:{
@@ -41,6 +42,10 @@ export default {
                 this.width = '200px';
             }
         }
+    },
+    created(){
+        this.activeIndex = this.$route.path
+        console.log(this.activeIndex);
     }
 }
 </script>

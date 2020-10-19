@@ -5,6 +5,9 @@ import HelloWorld from '../components/HelloWorld'
 const Home = ()=>import('../views/home/home')
 const Article =()=> import('views/home/component/Article')
 const ArticlePublish =()=> import('views/home/component/ArticlePublish')
+const Stuff = ()=> import('views/stuff/Stuff')
+const Comment = ()=> import('views/comment/Comment')
+const Profile =()=> import('views/profile/Profile')
 
 Vue.use(VueRouter)
 
@@ -28,9 +31,20 @@ const routes = [{
       path:'/home/publish',
       name:'publish',
       component:ArticlePublish
+    },{
+      path:'/home/stuff',
+      name:'stuff',
+      component:Stuff
+    },{
+      path:'/home/comment',
+      name:'comment',
+      component:Comment
+    },{
+      path:'/home/profile',
+      name:'profile',
+      component:Profile
     }
   ]
-  
 }
 ]
 

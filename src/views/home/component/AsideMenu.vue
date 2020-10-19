@@ -1,13 +1,13 @@
 <template>
     <div class="menu">
       <el-menu
-        default-active="/home/"
+        :default-active="activeIndex"
         background-color="#545c64"
         text-color="#fff"
         active-text-color="#9cdcf0"
         router
         :collapse.sync='flag'>
-        <el-menu-item index="/home/">
+        <el-menu-item index="/home">
             <i class="el-icon-location"></i>
             <span>首页</span>
         </el-menu-item>
@@ -31,7 +31,7 @@
             <i class="el-icon-user-solid"></i>
             <span slot="title">粉丝管理</span>
         </el-menu-item>
-        <el-menu-item index="/home/settings">
+        <el-menu-item index="/home/profile">
             <i class="el-icon-s-operation"></i>
             <span slot="title">个人设置</span>
         </el-menu-item>
@@ -47,7 +47,8 @@ export default {
         }
     },
     props:{
-        flag:false
+        flag:false,
+        activeIndex:''
     },
     methods:{
     }
