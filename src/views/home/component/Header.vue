@@ -28,6 +28,7 @@
 </template>
 <script>
 import { getProfile } from '../../../api/user'
+import GlobalBus from '@/util/globalBus'
 export default {
 	name:'Header',
 	data(){
@@ -58,6 +59,10 @@ export default {
 	created(){
 		getProfile().then(res => {
 			this.profile = res.data.data;
+			GlobalBus.$on("changeInfo", (data)=>{
+				console.log(data.name);
+				this.profile.name = data.name
+			})
 		})
 	},
 }

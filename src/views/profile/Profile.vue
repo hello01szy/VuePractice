@@ -14,8 +14,8 @@
 							<el-form-item label="编号">
 								<span>{{user.id}}</span>
 							</el-form-item>
-							<el-form-item label="编号">
-								<span>{{user.name}}</span>
+							<el-form-item label="姓名">
+								<el-input type="input" size="medium" v-model="user.name"></el-input>
 							</el-form-item>
 							<el-form-item label="手机">
 								<span>{{user.mobile}}</span>
@@ -27,7 +27,7 @@
 								<el-input type="textarea" v-model="user.intro"></el-input>
 							</el-form-item>
 							 <el-form-item>
-								<el-button type="primary" @click="onSubmit" size="mini">保存</el-button>
+								<el-button :loading="btnLoading" type="primary" @click="onSubmit" size="mini">保存</el-button>
 							</el-form-item>
 						</el-form>
 					</div>
@@ -37,19 +37,41 @@
 						<div class="box" @mouseenter="enter" @mouseleave="leave">
 							<el-avatar shape="square" :size="200" :fit="fit" :src="user.photo"></el-avatar>
 							<div :class="{fix:true, hide:hide}">
-								<i class="el-icon-edit"></i>
+								<i class="el-icon-edit" @click='toggleShow'></i>
 							</div>
 						</div>
 					</div>
-					<input id = 'chooseAvator' type="file" hidden>
 				</el-col>
 			</el-row>
 		</el-card>
+		<el-dialog
+			title="提示"
+			:visible.sync="dialogVisible"
+			width="30%">
+			<div class="block">
+				<el-image
+					style="width: 100px; height: 100px"
+					:src="avatorUrl"
+					fit="cover">
+				</el-image>
+			</div>
+		</el-dialog>
+			<my-upload field="img"
+						@crop-success="cropSuccess"
+						@crop-upload-success="cropUploadSuccess"
+						@crop-upload-fail="cropUploadFail"
+						v-model="show"
+				:width="300"
+				:height="300"
+				img-format="png"></my-upload>
   </div>
 </template>
 
 <script>
-import { getProfile } from '@/api/user'
+import 'babel-polyfill';
+import { getProfile, uploadAvator, updateUser } from '@/api/user'
+import globalBus from '@/util/globalBus'
+import myUpload from 'vue-image-crop-upload';
 export default {
 	name:'Profile',
 	data() {
@@ -61,13 +83,52 @@ export default {
 				photo: '',
 				intro:''
 			},
+			btnLoading:false,
 			fit: 'cover',
-			hide:true
+			hide:true,
+			dialogVisible:false,
+			avatorUrl:'',
+			show: false,
+			blobdata:{}
 		}
 	},
+	components:{
+		'my-upload':myUpload
+	},
 	methods: {
+		toggleShow() {
+			this.show = !this.show;
+		},
+		cropSuccess(imgDataUrl, field){
+			console.log('-------- crop success --------');
+			this.imgDataUrl = imgDataUrl;
+			this.user.photo = imgDataUrl;
+		},
+		cropUploadSuccess(jsonData, field){
+			console.log('-------- upload success --------');
+			console.log(jsonData);
+			console.log('field: ' + field);
+		},
+		cropUploadFail(status, field){
+			console.log('-------- upload fail --------');
+			console.log(status);
+			console.log('field: ' + field);
+		},
 		onSubmit() {
-			console.log('submit!');
+			this.btnLoading = true;
+			const {name, email, intro} = this.user
+			updateUser({
+				name,
+				intro,
+				email
+			}).then(res=>{
+				this.btnLoading = false;
+				globalBus.$emit('changeInfo', this.user);
+				this.$message.success('更新成功')
+			}).catch(res=>{
+				this.btnLoading = false
+				this.$message.error('更新失败');
+			})
 		},
 		enter(e){
 			this.hide = false;
@@ -127,13 +188,13 @@ export default {
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		transition: 0.9s;
 	}
 	.hide{
 		display: none;
 	}
 	.el-icon-edit{
-		color:#aaa
+		color:#00a0ff;
+		cursor: pointer;
 	}
 	.box{
 		height: 200px;

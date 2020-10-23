@@ -19,12 +19,17 @@
 					</el-form-item>
 					<el-form-item label="封面">
 						<el-radio-group v-model="pic">
-							<el-radio label="1">单图</el-radio>
-							<el-radio label="3">三图</el-radio>
-							<el-radio label="0">无图</el-radio>
-							<el-radio label="-1">自动</el-radio>
+							<el-radio :label="1">单图</el-radio>
+							<el-radio :label="3">三图</el-radio>
+							<el-radio :label="0">无图</el-radio>
+							<el-radio :label="-1">自动</el-radio>
 						</el-radio-group>
 					</el-form-item>
+					<div v-if="pic > 0" class="picture">
+						<div v-for="i in pic" :key="i" @click="chooseCover">
+							<Picture class="picitem"></Picture>
+						</div>
+					</div>
 					<el-form-item label="内容" class="editor" prop="content">
 						<quill-editor ref="text" v-model="form.content" class="myQuillEditor" :options="editorOption" />
 					</el-form-item>
@@ -35,6 +40,12 @@
 				</el-form>
 			</div>
 	</el-card>
+	<el-dialog size="medium" :visible.sync="dialogVisible">
+		<el-tabs v-model="activeName" @tab-click="handleClick">
+			<el-tab-pane label="用户管理" name="first">用户管理</el-tab-pane>
+			<el-tab-pane label="配置管理" name="second">配置管理</el-tab-pane>
+		</el-tabs>
+	</el-dialog>
 	</div>
 </template>
 
@@ -44,10 +55,12 @@ import { quillEditor } from 'vue-quill-editor'
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
+import Picture from '@/components/Picture'
 export default {
 	name:'ArticlePublish',
 	data() {
       return {
+				activeName: 'first',
         form: {
 					title: '',
 					channel_id: '',
@@ -79,6 +92,7 @@ export default {
 				},
 				channels:[],
 				pic:'',
+				dialogVisible:false,
 				rules:{
 					title: [
 						{ required: true, message: '请输入标题', trigger: 'blur' },
@@ -91,7 +105,8 @@ export default {
 			}
 	},
 	components: {
-    quillEditor
+		quillEditor,
+		Picture
   },
 	methods:{
 		onPublish(formname){
@@ -118,6 +133,12 @@ export default {
 		},
 		saveDraft(){
 			
+		},
+		chooseCover(){
+			this.dialogVisible = true;
+		},
+		handleClick(tab, event) {
+			console.log(tab, event);
 		},
 		loadChannels(){
 			getArticleChannel().then(res => {
@@ -163,5 +184,15 @@ export default {
 	}
 	.myQuillEditor .ql-container{
 		height: 350px;
+	}
+	.picture{
+		margin-left: 80px;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		margin-bottom: 10px;
+	}
+	.picitem{
+		margin-right: 10px;
 	}
 </style>
