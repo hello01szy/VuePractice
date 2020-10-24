@@ -24,3 +24,11 @@ export const deleteImg = image =>{
 		url:`/mp/v1_0/user/images/${image.id}`
 	})
 }
+
+export const uploadImage = data =>{
+	return reqeust({
+		method: 'POST',
+		url: '/mp/v1_0/user/images',
+		data
+	})
+}

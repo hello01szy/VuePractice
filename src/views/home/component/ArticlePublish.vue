@@ -18,16 +18,16 @@
 						</el-select>
 					</el-form-item>
 					<el-form-item label="封面">
-						<el-radio-group v-model="pic">
+						<el-radio-group v-model="form.cover.type">
 							<el-radio :label="1">单图</el-radio>
 							<el-radio :label="3">三图</el-radio>
 							<el-radio :label="0">无图</el-radio>
 							<el-radio :label="-1">自动</el-radio>
 						</el-radio-group>
 					</el-form-item>
-					<div v-if="pic > 0" class="picture">
-						<div v-for="i in pic" :key="i" @click="chooseCover">
-							<Picture class="picitem"></Picture>
+					<div v-if="form.cover.type > 0" class="picture">
+						<div v-for="i in form.cover.type" :key="i">
+							<Picture class="picitem" @fillImages="fillImages(i, $event)" :myurl="form.cover.images[i-1]"></Picture>
 						</div>
 					</div>
 					<el-form-item label="内容" class="editor" prop="content">
@@ -40,12 +40,6 @@
 				</el-form>
 			</div>
 	</el-card>
-	<el-dialog size="medium" :visible.sync="dialogVisible">
-		<el-tabs v-model="activeName" @tab-click="handleClick">
-			<el-tab-pane label="用户管理" name="first">用户管理</el-tab-pane>
-			<el-tab-pane label="配置管理" name="second">配置管理</el-tab-pane>
-		</el-tabs>
-	</el-dialog>
 	</div>
 </template>
 
@@ -60,7 +54,9 @@ export default {
 	name:'ArticlePublish',
 	data() {
       return {
-				activeName: 'first',
+				myurl:{
+					default:'../assets/picture.png'
+				},
         form: {
 					title: '',
 					channel_id: '',
@@ -91,8 +87,6 @@ export default {
 					placeholder:'请输入...'
 				},
 				channels:[],
-				pic:'',
-				dialogVisible:false,
 				rules:{
 					title: [
 						{ required: true, message: '请输入标题', trigger: 'blur' },
@@ -134,11 +128,9 @@ export default {
 		saveDraft(){
 			
 		},
-		chooseCover(){
-			this.dialogVisible = true;
-		},
-		handleClick(tab, event) {
-			console.log(tab, event);
+		fillImages(index, url){
+			this.form.cover.images[index-1] = url;
+			console.log(this.form.cover.images)
 		},
 		loadChannels(){
 			getArticleChannel().then(res => {
