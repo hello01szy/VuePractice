@@ -15,7 +15,6 @@ axios__instance.interceptors.request.use(config=>{
 		let user = JSON.parse(window.localStorage.getItem('data'));
 		if(user){
 				config.headers.Authorization = `Bearer ${user.token}`
-				router.push('/login');
 		}
 		return config;
 })

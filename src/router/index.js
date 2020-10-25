@@ -54,15 +54,14 @@ const routes = [{
 ]
 
 const router = new VueRouter({
+  base:'/vue-practice',
   routes
 })
 
 router.beforeEach((to, from, next) => {
-  console.log("hahahah" + to.path);
   if (to.path !== '/') {
     let user = JSON.parse(window.localStorage.getItem('data'));
     if (user) {
-      console.log('has logined')
       next()
     } else {
       next('/')

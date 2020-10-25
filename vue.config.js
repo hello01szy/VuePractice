@@ -4,7 +4,7 @@ function resolve(dir){
 }
 
 module.exports={
-    publicPath: '/',
+    publicPath: process.env.NODE_ENV === "production"?'/vue-practice':'/',
     chainWebpack:(config)=>{
         config.resolve.alias
         .set('@',resolve('./src'))
@@ -12,6 +12,5 @@ module.exports={
         .set('views',resolve('./src/views'))
         .set('assets',resolve('./src/assets'))
         //set第一个参数：设置的别名，第二个参数：设置的路径
-　　　　
     }
 }
